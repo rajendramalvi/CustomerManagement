@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "xE2GwLfpxWM0Kfkc/DdCFVfmLEpS5GNVQkdH4xMVoGtbwTHinbQbTmzwEXXNKwnS3zw7eQPKTibE/SSJhrnM5Q==",
+  "success": true,
+  "projectFilePath": "F:\\Rajendra Malvi\\Practice\\CustomerManagement\\PresentationLayer\\PresentationLayer.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Rajendra.Malvi\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

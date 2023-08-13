@@ -1,0 +1,527 @@
+﻿<style>
+    .pad {
+        padding-right: 5px;
+    }
+
+    .modal-body {
+        max-height: calc(100vh - 200px);
+        overflow-y: auto;
+    }
+
+    #overlay {
+        position: fixed;
+        top: 0;
+        z-index: 9999;
+        width: 100%;
+        height: 100%;
+        display: none;
+        background: rgba(0,0,0,0.6);
+    }
+
+    .cv-spinner {
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px #ddd solid;
+        border-top: 4px #2e93e6 solid;
+        border-radius: 50%;
+        animation: sp-anime 0.8s infinite linear;
+    }
+
+    @@keyframes sp-anime {
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+</style>
+
+<link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+<div class="mt-5">
+    <h2 class="col-md-12 text-center">Customer List</h2>
+    <div class="col-md-12 text-center">
+        <a class="btn btn-primary mb-3 mt-3" href="javascript:void(0)" onclick="ShowModal()"> Add Customer </a>
+    </div>
+
+    <div id="overlay">
+        <div class="cv-spinner">
+            <span class="spinner"></span>
+        </div>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>CustomerId</th>
+                <th>Firstname</th>
+                <th>Lastname</th>
+                <th>Email</th>
+                <th>PhoneNumber</th>
+                <th>CountryCode</th>
+                <th>Gender</th>
+                <th>Balance</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="custDetails">
+        </tbody>
+    </table>
+
+</div>
+
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">Customer Detail</h4>
+                <button type="button" class="btn btn-close" onclick="CloseModal()"></button>
+            </div>
+            <div class="modal-body">
+                <form id="custForm">
+                    <input type="hidden" id="custId" />
+                    <div class="form-row">
+                        <div class="form-group col-md-12 mb-2">
+                            <label for="firstname">Firstname*</label>
+                            <input type="text" class="form-control" id="firstname" name="firstname" required>
+                            <label id="fNameCheck" style="color:red"></label>
+                        </div>
+                        <div class="form-group col-md-12 mb-2">
+                            <label for="lastname">Lastname*</label>
+                            <input type="text" class="form-control" id="lastname" name="lastname" required>
+                            <label id="lNameCheck" style="color:red"></label>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-12 mb-2">
+                            <label for="email">Email*</label>
+                            <input type="text" class="form-control" id="email" name="email" required>
+                            <label id="emailCheck" style="color:red"></label>
+                        </div>
+                        <div class="form-group col-md-12 mb-2">
+                            <label for="phone_Number">Phone Number*</label>
+                            <input type="text" class="form-control" id="phone_Number" name="phone_Number" required>
+                            <label id="phoneCheck" style="color:red"></label>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-12 mb-2">
+                            <label for="country_code">Country Code*</label>
+                            <select class="form-control" id="country_code" name="country_code" required>
+                                <option value=""> --- Select --- </option>
+                                <option value="IN"> India </option>
+                                <option value="US"> United State </option>
+                                <option value="UK"> United Kindom </option>
+                                <option value="NZ"> New Zealand </option>
+                                <option value="AS"> Australia </option>
+                            </select>
+                            <label id="ccCheck" style="color:red"></label>
+                        </div>
+                        <div class="form-group col-md-12 mb-2">
+                            <label for="gender">Gender*</label>
+                            <select class="form-control" id="gender" name="gender" required>
+                                <option value=""> --- Select --- </option>
+                                <option value="m"> Male </option>
+                                <option value="f"> Female </option>
+                            </select>
+                            <label id="genderCheck" style="color:red"></label>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-12 mb-2">
+                            <label for="balance">Balance*</label>
+                            <input type="text" class="form-control" id="balance" name="balance" required>
+                            <label id="balCheck" style="color:red"></label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="btnAdd" onclick="SaveDetails();">Save</button>
+                <button type="button" class="btn btn-success" id="btnUpdate" style="display:none;" onclick="SaveDetails();">Update</button>
+                <button type="button" class="btn btn-primary" onclick="CloseModal()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+<script>
+    $('#fNameCheck').hide();
+    $('#lNameCheck').hide();
+    $('#emailCheck').hide();
+    $('#phoneCheck').hide();
+    $('#ccCheck').hide();
+    $('#genderCheck').hide();
+    $('#balCheck').hide();
+
+
+    $(document).ready(function () {
+        onLoad();
+    });
+
+    function onLoad() {
+        $("#overlay").fadeIn(300);
+        $.ajax({
+            type: "GET",
+            url: "/customer/GetCustomers",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                bindGrid(response);
+                $("#overlay").fadeOut(300);
+            },
+            error: function (xhr, status, error) {
+                alert("Error: " + error);
+            }
+        });
+    }
+
+    function bindGrid(response) {
+        var tblBody = "";
+        $.each(response, function (key, val) {
+            tblBody += "<tr><td>" + val.id + "</td><td>" + val.firstname + "</td><td>" + val.lastname + "</td><td><a href=mailto:'" + val.email + "'>" + val.email + "</a></td><td>" + val.phone_Number + "</td><td>" + val.country_code + "</td><td>" + val.gender + "</td><td>" + val.currency + " " + val.balance + "</td> <td><span class='pad'><a class='btn btn-info btn-sm' href='/customer/detail/" + val.id + "'>View</a></span><span class='pad'><a class='btn btn-primary btn-sm' onclick='EditDetails(" + JSON.stringify(val) + ")' href='javascript:void(0)'>Edit</a></span><span class='pad'><a href='javascript:void(0)' class='btn btn-danger btn-sm' onclick='DeleteCustomer(" + val.id + ")'>Delete</a></span></td></tr>";
+        });
+        $("#custDetails").append(tblBody);
+    }
+
+    function SaveDetails() {
+
+        var res = validate();
+        if (!validate()) {
+            return;
+        }
+        else {
+            $("#overlay").fadeIn(300);
+            var customer = {
+                id: $('#custId').val(),
+                firstname: $('#firstname').val(),
+                lastname: $('#lastname').val(),
+                email: $('#email').val(),
+                phone_Number: $('#phone_Number').val(),
+                country_code: $('#country_code').val(),
+                gender: $('#gender').val(),
+                balance: $('#balance').val(),
+                partitionKey: "US",
+                rowKey: "1",
+                currency: "USD"
+            };
+
+            if (customer.id != null && customer.id > 0) {
+                $.ajax({
+                    url: "/Customer/UpdateCustomer",
+                    type: "POST",
+                    data: customer,
+                    success: function (response) {
+                        bindGrid(response);
+                        swal({
+                            title: "Updated!",
+                            text: "Data successfully updated !!!",
+                            icon: "success",
+                            button: "Ok",
+                        });
+                        $("#overlay").fadeOut(300);
+                        $("#myModal").modal("hide");
+                    },
+                    error: function (errormessage) {
+                        alert(errormessage.responseText);
+                    }
+                });
+            }
+            else {
+                $.ajax({
+                    url: "/Customer/CreateCustomer",
+                    type: "POST",
+                    data: customer,
+                    success: function (response) {
+                        swal({
+                            title: "Saved!",
+                            text: "Data successfully inserted !!!",
+                            icon: "success",
+                            button: "Ok",
+                        });
+                        $("#overlay").fadeOut(300);
+                        $("#myModal").modal("hide");
+                    },
+                    error: function (errormessage) {
+                        alert(errormessage.responseText);
+                    }
+                });
+            }
+        }
+
+    }
+
+    function ShowModal() {
+        $("#myModal").modal("show");
+    }
+
+    function CloseModal() {
+        $('#firstname').css('border-color', 'lightgrey');
+        $('#lastname').css('border-color', 'lightgrey');
+        $('#email').css('border-color', 'lightgrey');
+        $('#phone_Number').css('border-color', 'lightgrey');
+        $('#country_code').css('border-color', 'lightgrey');
+        $('#gender').css('border-color', 'lightgrey');
+        $('#balance').css('border-color', 'lightgrey');
+        $('#fNameCheck').hide();
+        $('#lNameCheck').hide();
+        $('#emailCheck').hide();
+        $('#phoneCheck').hide();
+        $('#ccCheck').hide();
+        $('#genderCheck').hide();
+        $('#balCheck').hide();
+        $("#myModal").modal("hide");
+    }
+
+    function EditDetails(model) {
+        $('#custId').val(model.id);
+        $('#firstname').val(model.firstname);
+        $('#lastname').val(model.lastname);
+        $('#email').val(model.email);
+        $('#phone_Number').val(model.phone_Number);
+        $('#country_code').val(model.country_code);
+        $('#gender').val(model.gender);
+        $('#balance').val(model.balance);
+
+        $("#btnAdd").css("display", "none");
+        $("#btnUpdate").css("display", "");
+        $("#myModal").modal("show");
+    }
+
+    function DeleteCustomer(custId) {
+
+        swal({
+            title: "Are you sure?",
+            text: "Once deleted, you will not be able to recover this data!",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        })
+            .then((willDelete) => {
+                if (willDelete) {
+                    $("#overlay").fadeIn(300);
+                    $.ajax({
+                        type: "DELETE",
+                        url: "/customer/DeleteCustomer/" + custId,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (response) {
+                            bindGrid(response);
+                            swal({
+                                title: "Deleted!",
+                                text: "Data successfully Deleted !!!",
+                                icon: "success",
+                                button: "Ok",
+                            });
+                            $("#overlay").fadeOut(300);
+                        },
+                        error: function (xhr, status, error) {
+                            alert("Error: " + error);
+                        }
+                    });
+                }
+            });
+    }
+
+    // ------------- Validation ----------------------
+
+
+    $('#firstname').on("blur", (function () {
+        firstNameValidation();
+    }));
+
+    function firstNameValidation() {
+        var isValid = true;
+        let firstNameregex = /^[A-Za-z]{2,10}$/;
+        let checkFirstname = $('#firstname').val();
+
+        if (checkFirstname == null || checkFirstname == undefined || checkFirstname == "") {
+            $('#firstname').css('border-color', 'Red');
+            $('#fNameCheck').show();
+            $('#fNameCheck').html("Firstname is required !!!");
+            isValid = false;
+        }
+        else if (!firstNameregex.test(checkFirstname)) {
+            $('#firstname').css('border-color', 'Red');
+            $('#fNameCheck').show();
+            $('#fNameCheck').html("Enter valid firstname");
+            isValid = false;
+        }
+        else {
+            $('#firstname').css('border-color', 'lightgrey');
+            $('#fNameCheck').hide();
+        }
+        return isValid;
+    }
+
+    $('#lastname').on("blur", (function () {
+        lastNameValidation();
+    }));
+
+    function lastNameValidation() {
+        var isValid = true;
+        let lastNameregex = /^[a-zA-Z]{2,10}$/;
+        let checkLastname = $('#lastname').val();
+        if (checkLastname == null || checkLastname == undefined || checkLastname == "") {
+            $('#lastname').css('border-color', 'Red');
+            $('#lNameCheck').show();
+            $('#lNameCheck').html("Lastname is required !!!");
+            isValid = false;
+        }
+        else if (!lastNameregex.test(checkLastname)) {
+            $('#lastname').css('border-color', 'Red');
+            $('#lNameCheck').show();
+            $('#lNameCheck').html("Enter valid lastname");
+            isValid = false;
+        }
+        else {
+            $('#lastname').css('border-color', 'lightgrey');
+            $('#lNameCheck').hide();
+        }
+        return isValid;
+    }
+
+    $('#email').on("blur", (function () {
+        emailValidation();
+    }));
+
+    function emailValidation() {
+        var isValid = true;
+        let emailregex = /^([_\-\.0-9a-zA-Z]+)@@([_\-\.0-9a-zA-Z]+)\.([a-zA-Z]){2,7}$/;
+        let checkEmail = $('#email').val();
+
+        if (checkEmail == null || checkEmail == undefined || checkEmail == "") {
+            $('#email').css('border-color', 'Red');
+            $('#emailCheck').show();
+            $('#emailCheck').html("Email is required !!!");
+            isValid = false;
+        }
+        else if (!emailregex.test(checkEmail)) {
+            $('#email').css('border-color', 'Red');
+            $('#emailCheck').show();
+            $('#emailCheck').html("Enter valid email");
+            isValid = false;
+        }
+        else {
+            $('#email').css('border-color', 'lightgrey');
+            $('#emailCheck').hide();
+        }
+        return isValid;
+    }
+
+    $('#phone_Number').on("blur", (function () {
+        phoneValidation();
+    }));
+
+    function phoneValidation() {
+        var isValid = true;
+        let mobileregex = /^((\+[1-9]{1,4}[ \-]*)|(\([0-9]{2,3}\)[ \-]*)|([0-9]{2,4})[ \-]*)*?[0-9]{3,4}?[ \-]*[0-9]{3,4}?$/;
+        let checkmobile = $('#phone_Number').val();
+
+        if (checkmobile == null || checkmobile == undefined || checkmobile == "") {
+            $('#phone_Number').css('border-color', 'Red');
+            $('#phoneCheck').show();
+            $('#phoneCheck').html("Phone number is required !!!");
+            isValid = false;
+        }
+        else if (!mobileregex.test(checkmobile)) {
+            $('#phone_Number').css('border-color', 'Red');
+            $('#phoneCheck').show();
+            $('#phoneCheck').html("Enter valid number");
+            isValid = false;
+        }
+        else {
+            $('#phone_Number').css('border-color', 'lightgrey');
+            $('#phoneCheck').hide();
+        }
+        return isValid;
+    }
+
+    $('#country_code').on("blur", (function () {
+        countryCodeValidation();
+    }));
+
+    function countryCodeValidation() {
+        var isValid = true;
+        let checkCC = $('#country_code').val()
+
+        if (checkCC == null || checkCC == undefined || checkCC == "") {
+            $('#country_code').css('border-color', 'Red');
+            $('#ccCheck').show();
+            $('#ccCheck').html("Country code is required !!!");
+            isValid = false;
+        }
+        else {
+            $('#country_code').css('border-color', 'lightgrey');
+            $('#ccCheck').hide();
+        }
+        return isValid;
+    }
+
+    $('#gender').on("blur", (function () {
+        genderValidation();
+    }));
+
+    function genderValidation() {
+        var isValid = true;
+        let checkCC = $('#gender').val()
+
+        if (checkCC == null || checkCC == undefined || checkCC == "") {
+            $('#gender').css('border-color', 'Red');
+            $('#genderCheck').show();
+            $('#genderCheck').html("Gender is required !!!");
+            isValid = false;
+        }
+        else {
+            $('#gender').css('border-color', 'lightgrey');
+            $('#genderCheck').hide();
+        }
+        return isValid;
+    }
+
+    $('#balance').on("blur", (function () {
+        balanceValidation();
+    }));
+
+    function balanceValidation() {
+        var isValid = true;
+        let balRegex = /^(\d*\.?\d*)$/;
+        let checkBalance = $('#balance').val()
+
+        if (checkBalance == null || checkBalance == undefined || checkBalance == "") {
+            $('#balance').css('border-color', 'Red');
+            $('#balCheck').show();
+            $('#balCheck').html("Balance is required !!!");
+            isValid = false;
+        }
+        else if (!balRegex.test(checkBalance)) {
+            $('#balance').css('border-color', 'Red');
+            $('#balCheck').show();
+            $('#balCheck').html("Enter valid amount");
+            isValid = false;
+        }
+        else {
+            $('#balance').css('border-color', 'lightgrey');
+            $('#balCheck').hide();
+        }
+        return isValid;
+    }
+
+    function validate() {
+        var isValid = true;
+        if (!firstNameValidation() || !lastNameValidation() || !emailValidation() || !phoneValidation() || !countryCodeValidation() || !genderValidation() || !balanceValidation())
+            return false;
+        return isValid;
+    }
+
+</script>

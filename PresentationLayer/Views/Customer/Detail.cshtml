@@ -1,0 +1,64 @@
+﻿<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-3 pt-4">
+            <img src="~/image/user-avtar.png" alt="User Avatar" height="250" width="250" class="img-fluid">
+        </div>
+        <div class="col-md-6">
+            <h4>User Information</h4>
+            <hr />
+            <div class="pt-3">
+                <p><strong>Fullname:</strong> <span id="fullname"></span></p>
+                <p><strong>Firstname:</strong> <span id="fname"></span></p>
+                <p><strong>Lastname:</strong> <span id="lname"></span></p>
+                <p><strong>Email:</strong> <span id="email"></span></p>
+                <p><strong>Phone:</strong> <span id="phone"></span></p>
+                <p><strong>Gender:</strong> <span id="gender"></span></p>
+                <p><strong>CountryCode:</strong> <span id="cc"></span></p>
+                <p><strong>Balance:</strong> <span id="bal"></span></p>
+            </div>
+        </div>
+    <a class="btn btn-info" href="/customer/index">Back to List</a>
+    </div>
+</div>
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+        onLoad();
+    });
+
+    function onLoad() {
+
+        var id = window.location.pathname.substring(window.location.pathname.lastIndexOf('/') + 1);
+
+        if (id != undefined && id != null && id > 0) {
+            $.ajax({
+                type: "GET",
+                url: "/customer/GetCustomer/" + id,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    $('#fullname').text(response.salutation + " " + response.firstname + " " + response.lastname)
+                    $('#fname').text(response.firstname)
+                    $('#lname').text(response.lastname)
+                    $('#email').text(response.email)
+                    $('#phone').text(response.phone_Number)
+                    $('#gender').text(response.gender == "f" ? "Female" : "Male")
+                    $('#cc').text(response.country_code)
+                    $('#bal').text(response.currency + " " + response.balance)
+                },
+                error: function (xhr, status, error) {
+                    alert("Error: " + error);
+                }
+            });
+        }
+        else
+        {
+            alert("No record found !!!")
+        }
+    }
+
+</script>

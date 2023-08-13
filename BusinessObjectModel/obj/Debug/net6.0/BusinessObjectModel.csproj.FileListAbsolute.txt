@@ -1,0 +1,12 @@
+F:\Rajendra Malvi\Practice\CustomerManagement\BusinessObjectModel\bin\Debug\net6.0\BusinessObjectModel.deps.json
+F:\Rajendra Malvi\Practice\CustomerManagement\BusinessObjectModel\bin\Debug\net6.0\BusinessObjectModel.dll
+F:\Rajendra Malvi\Practice\CustomerManagement\BusinessObjectModel\bin\Debug\net6.0\BusinessObjectModel.pdb
+F:\Rajendra Malvi\Practice\CustomerManagement\BusinessObjectModel\obj\Debug\net6.0\BusinessObjectModel.csproj.AssemblyReference.cache
+F:\Rajendra Malvi\Practice\CustomerManagement\BusinessObjectModel\obj\Debug\net6.0\BusinessObjectModel.GeneratedMSBuildEditorConfig.editorconfig
+F:\Rajendra Malvi\Practice\CustomerManagement\BusinessObjectModel\obj\Debug\net6.0\BusinessObjectModel.AssemblyInfoInputs.cache
+F:\Rajendra Malvi\Practice\CustomerManagement\BusinessObjectModel\obj\Debug\net6.0\BusinessObjectModel.AssemblyInfo.cs
+F:\Rajendra Malvi\Practice\CustomerManagement\BusinessObjectModel\obj\Debug\net6.0\BusinessObjectModel.csproj.CoreCompileInputs.cache
+F:\Rajendra Malvi\Practice\CustomerManagement\BusinessObjectModel\obj\Debug\net6.0\BusinessObjectModel.dll
+F:\Rajendra Malvi\Practice\CustomerManagement\BusinessObjectModel\obj\Debug\net6.0\refint\BusinessObjectModel.dll
+F:\Rajendra Malvi\Practice\CustomerManagement\BusinessObjectModel\obj\Debug\net6.0\BusinessObjectModel.pdb
+F:\Rajendra Malvi\Practice\CustomerManagement\BusinessObjectModel\obj\Debug\net6.0\ref\BusinessObjectModel.dll
